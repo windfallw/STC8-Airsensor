@@ -155,7 +155,7 @@ extern void SendAirQuality();
 uchar ESP[100]="\0";//接收串口4ESP8266WIFI模块信息
 uchar ESP_UP_Header[150]="\0";
 uchar ESP_UP_DATA[300]="\0";
-extern void ESP_Initialize();//初始化
+//extern void ESP_Initialize();//初始化
 extern void ESP_SendGPS();
 extern void ESP_SendAIR();
 //====================================================
