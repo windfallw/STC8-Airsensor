@@ -139,21 +139,21 @@ void SendAirQuality()
     sendData("-------------------END-------------------\r\n");
 }
 
-void ESP_Initialize()
-{
-    sendData4(test);
-    sendData4(Connect_Server);
-    sendData4(Set_Cip);
-    sendData4(Enter_Cip);
-}
+//void ESP_Initialize()
+//{
+//    sendData4(test);
+//    sendData4(Connect_Server);
+//    sendData4(Set_Cip);
+//    sendData4(Enter_Cip);
+//}
 
 void ESP_SendGPS()
 { 
     sprintf(ESP_UP_DATA,GPS_data1,year,month,day);
     sprintf(ESP_UP_DATA,GPS_data2,ESP_UP_DATA,latitude_d,latitude_m);
     sprintf(ESP_UP_DATA,GPS_data3,ESP_UP_DATA,longitude_d,longitude_m);
-    sprintf(ESP_UP_Header,GPS_Header,strlen(ESP_UP_DATA));
-    sendData4(ESP_UP_Header);
+//    sprintf(ESP_UP_Header,GPS_Header,strlen(ESP_UP_DATA));
+//    sendData4(ESP_UP_Header);
     sendData4(ESP_UP_DATA);
     ESP8266=2;
 //    sendData(ESP_UP_Header);
@@ -168,8 +168,8 @@ void ESP_SendAIR()
     sprintf(ESP_UP_DATA,Air_data4,ESP_UP_DATA,cGt0_3um,cGt0_5um);
     sprintf(ESP_UP_DATA,Air_data5,ESP_UP_DATA,cGt1_0um,cGt2_5um);
     sprintf(ESP_UP_DATA,Air_data6,ESP_UP_DATA,cGt5_0um,cGt10um);
-    sprintf(ESP_UP_Header,Air_Header,strlen(ESP_UP_DATA));
-    sendData4(ESP_UP_Header);
+//    sprintf(ESP_UP_Header,Air_Header,strlen(ESP_UP_DATA));
+//    sendData4(ESP_UP_Header);
     sendData4(ESP_UP_DATA);                  
     ESP8266=3;
 //    sendData(ESP_UP_Header);               
@@ -240,14 +240,6 @@ void DisPlay_LCD()
         sprintf(strTemp,"%13.13s%1s %c",strTemp,"'",WE);
         DispS(4,0,strTemp);
         break;
-    case 4:
-        DispS(1,0,"讯息:           ");
-        DispS(2,0,"                ");
-        DispS(3,0,"有内鬼          ");
-        DispS(4,0,"终止交易!       ");
-        break;
-    case 5:
-        break;
     default:
         break;
     }
@@ -277,7 +269,7 @@ void INT1() interrupt 2
 
 void INT3() interrupt 11
 {
-    if(Touch==4)Touch=0;
+    if(Touch==3)Touch=0;
     else Touch++;
     DisPlay_LCD();
 //    SendChar1(Touch+'0');
