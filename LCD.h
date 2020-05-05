@@ -1,7 +1,6 @@
 #ifndef __LCD_H_
 #define __LCD_H_
 #include	"STC8.H"
-#include <intrins.h>  //加入此头文件后,可使用_nop_库函数
 sbit RS=P3^5;     //LCD12864 RS端
 sbit RW=P3^4;     //LCD12864 RW端
 sbit E =P3^2;     //LCD12864 E 端
