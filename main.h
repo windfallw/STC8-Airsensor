@@ -20,6 +20,7 @@
 //串口2 P1.0 P1.1 or P4.0 P4.2
 //串口3 P0.0 P0.1 or P5.0 P5.1
 //串口4 P0.2 P0.3 or P5.2 P5.3
+//INT1 P3.3 INT3 P3.7
 //=======================================================
 
 
@@ -27,7 +28,7 @@
 //================外部中断触控模块================
 sbit Switch=P5^5;
 //----------计数用----------
-char xdata Touch=0;
+char xdata Touch=-1;
 uchar ATK_GPS=0;
 uchar Pms7003=0;
 uchar ESP8266=0;
@@ -122,40 +123,22 @@ extern void SendAirQuality();
 //==================================================
 
 //==================串口4Esp8266模块==================
-#define test "AT\r\n"
-#define Connect_Server "AT+CIPSTART=\"TCP\",\"192.168.31.10\",80\r\n"
-#define Set_Cip "AT+CIPMODE=1\r\n"
-#define Enter_Cip "AT+CIPSEND\r\n"
+#define GPS_data1 "{\"year\":%s,\"month\":%s,\"day\":%s"
+#define GPS_data2 "%s,\"lae1\":%s,\"lae2\":%s"
+#define GPS_data3 "%s,\"loe1\":%s,\"loe2\":%s"
+#define GPS_data4 "%s,\"hour\":%s,\"minute\":%s"
+#define GPS_data5 "%s,\"sec\":%s,\"type\":\"%s\"}\r\n"
 
-#define GPS_Header \
-				 "POST /api/gps HTTP/1.1\r\n" \
-				 "Host: 192.168.31.10:80\r\n" \
-			   "Content-Type: application/json\r\n" \
-         "cache-control: no-cache\r\n" \
-			   "content-length: %d\r\n\r\n"
-
-#define Air_Header \
-				 "POST /api/air HTTP/1.1\r\n" \
-				 "Host: 192.168.31.10:80\r\n" \
-			   "Content-Type: application/json\r\n" \
-         "cache-control: no-cache\r\n" \
-			   "content-length: %d\r\n\r\n"
-               
-#define GPS_data1 "{\"year\":\"%s\",\"month\":\"%s\",\"day\":\"%s\""
-#define GPS_data2 "%s,\"lae1\":\"%s\",\"lae2\":\"%s\""
-#define GPS_data3 "%s,\"loe1\":\"%s\",\"loe2\":\"%s\"}\r\n"
-
-#define Air_data1 "{\"PM1_0CF1\":\"%s\",\"PM2_5CF1\":\"%s\""
-#define Air_data2 "%s,\"PM10CF1\":\"%s\",\"PM1_0AE\":\"%s\""
-#define Air_data3 "%s,\"PM2_5AE\":\"%s\",\"PM10AE\":\"%s\""
-#define Air_data4 "%s,\"Gt0_3um\":\"%s\",\"Gt0_5um\":\"%s\""
-#define Air_data5 "%s,\"Gt1_0um\":\"%s\",\"Gt2_5um\":\"%s\""
-#define Air_data6 "%s,\"Gt5_0um\":\"%s\",\"Gt10um\":\"%s\"}\r\n"
+#define Air_data1 "{\"type\":\"%s\",\"PM1_0CF1\":%s,\"PM2_5CF1\":%s"
+#define Air_data2 "%s,\"PM10CF1\":%s,\"PM1_0AE\":%s"
+#define Air_data3 "%s,\"PM2_5AE\":%s,\"PM10AE\":%s"
+#define Air_data4 "%s,\"Gt0_3um\":%s,\"Gt0_5um\":%s"
+#define Air_data5 "%s,\"Gt1_0um\":%s,\"Gt2_5um\":%s"
+#define Air_data6 "%s,\"Gt5_0um\":%s,\"Gt10um\":%s}\r\n"
 
 uchar ESP[100]="\0";//接收串口4ESP8266WIFI模块信息
 uchar ESP_UP_Header[150]="\0";
 uchar ESP_UP_DATA[300]="\0";
-//extern void ESP_Initialize();//初始化
 extern void ESP_SendGPS();
 extern void ESP_SendAIR();
 //====================================================

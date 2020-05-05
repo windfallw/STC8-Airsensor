@@ -139,43 +139,31 @@ void SendAirQuality()
     sendData("-------------------END-------------------\r\n");
 }
 
-//void ESP_Initialize()
-//{
-//    sendData4(test);
-//    sendData4(Connect_Server);
-//    sendData4(Set_Cip);
-//    sendData4(Enter_Cip);
-//}
-
 void ESP_SendGPS()
-{ 
+{
     sprintf(ESP_UP_DATA,GPS_data1,year,month,day);
     sprintf(ESP_UP_DATA,GPS_data2,ESP_UP_DATA,latitude_d,latitude_m);
     sprintf(ESP_UP_DATA,GPS_data3,ESP_UP_DATA,longitude_d,longitude_m);
-//    sprintf(ESP_UP_Header,GPS_Header,strlen(ESP_UP_DATA));
-//    sendData4(ESP_UP_Header);
+    sprintf(ESP_UP_DATA,GPS_data4,ESP_UP_DATA,hour,minute);
+    sprintf(ESP_UP_DATA,GPS_data5,ESP_UP_DATA,sec,"gps");
     sendData4(ESP_UP_DATA);
+//    sendData(ESP_UP_DATA);
     ESP8266=2;
-//    sendData(ESP_UP_Header);
-//    sendData(ESP_UP_DATA); 
 }
 
 void ESP_SendAIR()
 {
-    sprintf(ESP_UP_DATA,Air_data1,cPM1_0CF1,cPM2_5CF1);
+    sprintf(ESP_UP_DATA,Air_data1,"pms7003",cPM1_0CF1,cPM2_5CF1);
     sprintf(ESP_UP_DATA,Air_data2,ESP_UP_DATA,cPM10CF1,cPM1_0AE);
     sprintf(ESP_UP_DATA,Air_data3,ESP_UP_DATA,cPM2_5AE,cPM10AE);
     sprintf(ESP_UP_DATA,Air_data4,ESP_UP_DATA,cGt0_3um,cGt0_5um);
     sprintf(ESP_UP_DATA,Air_data5,ESP_UP_DATA,cGt1_0um,cGt2_5um);
     sprintf(ESP_UP_DATA,Air_data6,ESP_UP_DATA,cGt5_0um,cGt10um);
-//    sprintf(ESP_UP_Header,Air_Header,strlen(ESP_UP_DATA));
-//    sendData4(ESP_UP_Header);
-    sendData4(ESP_UP_DATA);                  
+    sendData4(ESP_UP_DATA);
+//    sendData(ESP_UP_DATA);
     ESP8266=3;
-//    sendData(ESP_UP_Header);               
-//    sendData(ESP_UP_DATA);      
 }
-  
+
 void DisPlay_LCD()
 {
     switch(Touch)
@@ -183,24 +171,24 @@ void DisPlay_LCD()
     case -1:
         return;
         break;
-    
+
     case 0:
         DispS(1,0,"****设备状况****");
 
         if(ATK_GPS==3)DispS(2,0,"ATK_GPS:Normal  ");
-        else if(ATK_GPS==2)DispS(2,0,"ATK_GPS:False   ");
-        else if(ATK_GPS==1)DispS(2,0,"ATK_GPS:Pending ");
+        else if(ATK_GPS==2)DispS(2,0,"ATK_GPS:Error   ");
+        else if(ATK_GPS==1)DispS(2,0,"ATK_GPS:Wait    ");
         else DispS(2,0,"ATK_GPS:未接入  ");
 
         if(Pms7003==3)DispS(3,0,"Pms7003:Normal  ");
-        else if(Pms7003==2)DispS(3,0,"Pms7003:False   ");
-        else if(Pms7003==1)DispS(3,0,"Pms7003:Pending ");
+        else if(Pms7003==2)DispS(3,0,"Pms7003:Error   ");
+        else if(Pms7003==1)DispS(3,0,"Pms7003:Wait    ");
         else DispS(3,0,"Pms7003:未接入  ");
 
         if(ESP8266==1)DispS(4,0,"ESP8266:已接入  ");
-        else if(ESP8266==2)DispS(4,0,"ESP8266:Send_GPS");
-        else if(ESP8266==3)DispS(4,0,"ESP8266:Send_Air");
-        else (4,0,"ESP8266:Pending ");
+        else if(ESP8266==2)DispS(4,0,"ESP8266:SendGPS ");
+        else if(ESP8266==3)DispS(4,0,"ESP8266:SendAir ");
+        else (4,0,"ESP8266:Wait    ");
 
         break;
     case 1:
@@ -253,23 +241,28 @@ void DisPlay_LCD()
 //    {
 //      led = ~led;       //将指示灯取反更换亮灭状态
 //      cnt = 0;
-//    }	
+//    }
 //    //进入中断时会将定时器中断溢出标志位硬件清零，因此下面一句可以不加的
 //    TF0 = 0;             //清除T0中断溢出标志位
 //}
 
-void INT1() interrupt 2		
+void INT1() interrupt 2
 {
-	Touch=-1;
-  DispS(1,0,"****************");
-  DispS(2,0,"**LCD12864关闭**");
-  DispS(3,0,"**    INT1    **");
-  DispS(4,0,"****************");
+    if(Touch==-1)Touch=0;
+    else 
+    {
+      Touch=-1;
+      DispS(1,0,"****************");
+      DispS(2,0,"**LCD12864关闭**");
+      DispS(3,0,"**    INT1    **");
+      DispS(4,0,"****************");
+    }
 }
 
 void INT3() interrupt 11
 {
-    if(Touch==3)Touch=0;
+    if(Touch==-1)return;
+    else if(Touch==3)Touch=0;
     else Touch++;
     DisPlay_LCD();
 //    SendChar1(Touch+'0');
@@ -285,14 +278,14 @@ void main()
     Init_Lcd();
     IE1  = 0;	     //将INT1中断请求标志位清"0"
     EX1 = 1;	     //使能INT1中断允许位
-    IT1 = 1;		   //选择INT1为下降沿触发方式	  
+    IT1 = 1;		   //选择INT1为下降沿触发方式
     INTCLKO |= 0x20;   //使能INT3中断允许位 P3.7 下降沿中断方式
     while(1)
     {
-      
-      
-    }
 
+
+    }
+    
 }
 
 void Uart1() interrupt 4 using 1
@@ -473,7 +466,7 @@ void Uart2() interrupt 8 using 1
             if(Com2==1)sendData(GPSRMC);
             sprintf(cCalsum,"%X",Calsum);
             if(strcmp(Chesum,cCalsum)==0)
-            {           
+            {
                 if(Com2==2)sendData(GPSRMC);
                 deal_data();
                 ESP_SendGPS();
@@ -603,19 +596,19 @@ void Uart3() interrupt 17 using 1
                 sprintf(cChecksum, "%u",Checksum);
                 sprintf(cCalChecksum, "%u",CalChecksum);
                 if(Checksum==CalChecksum)
-                {                
-                    if(Com3==2)SendAirQuality();   
-                    ESP_SendAIR();                  
-                    Pms7003=3;                    
-                }
-                else 
                 {
-                  Pms7003=2;
-                  sendData("AirERROR\r\n");
-                  sendData(cChecksum);
-                  SendEndl();
-                  sendData(cCalChecksum);
-                  SendEndl();                  
+                    if(Com3==2)SendAirQuality();
+                    ESP_SendAIR();
+                    Pms7003=3;
+                }
+                else
+                {
+                    Pms7003=2;
+                    sendData("AirERROR\r\n");
+                    sendData(cChecksum);
+                    SendEndl();
+                    sendData(cCalChecksum);
+                    SendEndl();
                 }
                 DisPlay_LCD();
                 ESP8266=0;
@@ -643,7 +636,7 @@ void Uart4() interrupt 18 using 1
         if(Com4==1)SendChar1(temp);
 //        if(temp=='\n'||n>=100)
 //        {
-//          
+//
 //            n=0;
 //        }
 
